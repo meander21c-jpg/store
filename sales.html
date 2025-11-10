@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>판매 관리 - 매장 관리 시스템</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .status-completed { background-color: #f0fdf4; border-left: 4px solid #22c55e; }
+        .status-pending { background-color: #fffbeb; border-left: 4px solid #f59e0b; }
+        .status-cancelled { background-color: #fef2f2; border-left: 4px solid #ef4444; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-white font-bold text-sm">MS</span>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-900">매장 관리 시스템</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-gray-900 transition-colors">대시보드</a>
+                    <a href="inventory.html" class="text-gray-600 hover:text-gray-900 transition-colors">재고 관리</a>
+                    <a href="sales.html" class="text-blue-600 font-medium border-b-2 border-blue-600 pb-1">판매 관리</a>
+                    <a href="staff.html" class="text-gray-600 hover:text-gray-900 transition-colors">직원 관리</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="mb-8 animate-fade-in">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">판매 관리</h2>
+                    <p class="text-gray-600 mt-1">판매 내역과 실적을 실시간으로 확인하세요</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="newSaleBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        새 판매
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                        보고서 생성
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">오늘 매출</p>
+                        <p class="text-2xl font-bold text-gray-900">₩2,450,000</p>
+                        <p class="text-sm text-green-600 mt-1">↗ 12.5% 전일대비</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">주문 수</p>
+                        <p class="text-2xl font-bold text-gray-900">156</p>
+                        <p class="text-sm text-blue-600 mt-1">23개 처리중</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">평균 주문 금액</p>
+                        <p class="text-2xl font-bold text-gray-900">₩15,700</p>
+                        <p class="text-sm text-green-600 mt-1">↗ 5.2% 전일대비</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">반품율</p>
+                        <p class="text-2xl font-bold text-gray-900">2.3%</p>
+                        <p class="text-sm text-green-600 mt-1">↘ 0.5% 전일대비</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Sales Trend Chart -->
+            <div class="bg-white rounded-xl shadow-sm p-6 animate-fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">매출 추이</h3>
+                    <div class="flex space-x-2">
+                        <button class="text-sm px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-medium">7일</button>
+                        <button class="text-sm px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-lg">30일</button>
+                        <button class="text-sm px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-lg">1년</button>
+                    </div>
+                </div>
+                <div id="salesTrendChart" style="height: 300px;"></div>
+            </div>
+
+            <!-- Product Sales Chart -->
+            <div class="bg-white rounded-xl shadow-sm p-6 animate-fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">인기 상품</h3>
+                    <button class="text-sm text-blue-600 hover:text-blue-700 font-medium">자세히 보기</button>
+                </div>
+                <div id="productSalesChart" style="height: 300px;"></div>
+            </div>
+        </div>
+
+        <!-- Sales Table -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden animate-fade-in">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">최근 판매 내역</h3>
+                    <div class="flex items-center space-x-4">
+                        <input type="date" id="dateFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <select id="statusFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            <option value="">모든 상태</option>
+                            <option value="completed">완료</option>
+                            <option value="pending">처리중</option>
+                            <option value="cancelled">취소</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">주문번호</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">고객</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제품</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">금액</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">날짜</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Sales data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- New Sale Modal -->
+    <div id="newSaleModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">새 판매 등록</h3>
+                    <button id="closeSaleModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form id="newSaleForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">고객명</label>
+                        <input type="text" id="customerName" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">제품명</label>
+                        <select id="productName" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="">선택하세요</option>
+                            <option value="무선 마우스">무선 마우스</option>
+                            <option value="블루투스 스피커">블루투스 스피커</option>
+                            <option value="노트북 가방">노트북 가방</option>
+                            <option value="티셔츠">티셔츠</option>
+                            <option value="청바지">청바지</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">수량</label>
+                            <input type="number" id="quantity" required min="1" value="1" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">단가</label>
+                            <input type="number" id="unitPrice" required min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">총 금액</label>
+                        <input type="text" id="totalAmount" readonly class="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2">
+                    </div>
+                    <div class="flex space-x-3 pt-4">
+                        <button type="button" id="cancelSale" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">취소</button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">등록</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center">
+                <p class="text-gray-600">© 2025 매장 관리 시스템. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 판매 관리 시스템
+        class SalesManager {
+            constructor() {
+                this.sales = [
+                    { id: 1, customer: '김철수', product: '무선 마우스', amount: 25000, status: 'completed', date: '2025-01-10', quantity: 2 },
+                    { id: 2, customer: '이영희', product: '블루투스 스피커', amount: 45000, status: 'pending', date: '2025-01-10', quantity: 1 },
+                    { id: 3, customer: '박지영', product: '노트북 가방', amount: 35000, status: 'completed', date: '2025-01-09', quantity: 1 },
+                    { id: 4, customer: '김민수', product: '티셔츠', amount: 30000, status: 'completed', date: '2025-01-09', quantity: 2 },
+                    { id: 5, customer: '이하늘', product: '청바지', amount: 45000, status: 'cancelled', date: '2025-01-08', quantity: 1 },
+                    { id: 6, customer: '박서준', product: '스마트워치', amount: 180000, status: 'completed', date: '2025-01-08', quantity: 1 },
+                    { id: 7, customer: '김다은', product: '헤드폰', amount: 75000, status: 'pending', date: '2025-01-07', quantity: 1 },
+                    { id: 8, customer: '이우진', product: '티셔츠', amount: 45000, status: 'completed', date: '2025-01-07', quantity: 3 }
+                ];
+                this.filteredSales = [...this.sales];
+                this.init();
+            }
+
+            init() {
+                this.renderSales();
+                this.setupEventListeners();
+                this.initializeCharts();
+                this.animateElements();
+            }
+
+            renderSales() {
+                const tbody = document.getElementById('salesTableBody');
+                tbody.innerHTML = '';
+
+                this.filteredSales.forEach(sale => {
+                    const row = document.createElement('tr');
+                    row.className = `status-${sale.status} hover:bg-gray-50 transition-colors`;
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            #${String(sale.id).padStart(5, '0')}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${sale.customer}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${sale.product} (${sale.quantity}개)
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ₩${sale.amount.toLocaleString()}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                ${sale.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                  sale.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                  'bg-red-100 text-red-800'}">
+                                ${this.getStatusName(sale.status)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${sale.date}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="salesManager.viewSale(${sale.id})" 
+                                    class="text-blue-600 hover:text-blue-900 mr-3">상세</button>
+                            ${sale.status === 'pending' ? 
+                                `<button onclick="salesManager.completeSale(${sale.id})" 
+                                        class="text-green-600 hover:text-green-900 mr-3">완료</button>` : ''}
+                            <button onclick="salesManager.cancelSale(${sale.id})" 
+                                    class="text-red-600 hover:text-red-900">취소</button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+
+            getStatusName(status) {
+                const statuses = {
+                    'completed': '완료',
+                    'pending': '처리중',
+                    'cancelled': '취소'
+                };
+                return statuses[status] || status;
+            }
+
+            setupEventListeners() {
+                // 새 판매 모달
+                document.getElementById('newSaleBtn').addEventListener('click', () => {
+                    this.showNewSaleModal();
+                });
+
+                document.getElementById('closeSaleModal').addEventListener('click', () => {
+                    this.hideNewSaleModal();
+                });
+
+                document.getElementById('cancelSale').addEventListener('click', () => {
+                    this.hideNewSaleModal();
+                });
+
+                // 새 판매 폼
+                document.getElementById('newSaleForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addNewSale();
+                });
+
+                // 수량과 단가 변경 시 총 금액 계산
+                document.getElementById('quantity').addEventListener('input', () => {
+                    this.calculateTotal();
+                });
+
+                document.getElementById('unitPrice').addEventListener('input', () => {
+                    this.calculateTotal();
+                });
+
+                // 필터
+                document.getElementById('dateFilter').addEventListener('change', () => {
+                    this.filterSales();
+                });
+
+                document.getElementById('statusFilter').addEventListener('change', () => {
+                    this.filterSales();
+                });
+            }
+
+            showNewSaleModal() {
+                document.getElementById('newSaleModal').classList.remove('hidden');
+                anime({
+                    targets: '#newSaleModal .bg-white',
+                    scale: [0.8, 1],
+                    opacity: [0, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            }
+
+            hideNewSaleModal() {
+                anime({
+                    targets: '#newSaleModal .bg-white',
+                    scale: [1, 0.8],
+                    opacity: [1, 0],
+                    duration: 200,
+                    easing: 'easeInQuad',
+                    complete: () => {
+                        document.getElementById('newSaleModal').classList.add('hidden');
+                        document.getElementById('newSaleForm').reset();
+                    }
+                });
+            }
+
+            calculateTotal() {
+                const quantity = parseInt(document.getElementById('quantity').value) || 0;
+                const unitPrice = parseInt(document.getElementById('unitPrice').value) || 0;
+                const total = quantity * unitPrice;
+                document.getElementById('totalAmount').value = total > 0 ? `₩${total.toLocaleString()}` : '';
+            }
+
+            addNewSale() {
+                const customerName = document.getElementById('customerName').value;
+                const productName = document.getElementById('productName').value;
+                const quantity = parseInt(document.getElementById('quantity').value);
+                const unitPrice = parseInt(document.getElementById('unitPrice').value);
+                const totalAmount = quantity * unitPrice;
+
+                const newSale = {
+                    id: Math.max(...this.sales.map(s => s.id)) + 1,
+                    customer: customerName,
+                    product: productName,
+                    amount: totalAmount,
+                    status: 'pending',
+                    date: new Date().toISOString().split('T')[0],
+                    quantity: quantity
+                };
+
+                this.sales.unshift(newSale);
+                this.filterSales();
+                this.hideNewSaleModal();
+                this.updateCharts();
+                this.showNotification('새 판매가 등록되었습니다!', 'success');
+            }
+
+            viewSale(id) {
+                this.showNotification('상세 보기 기능은 준비 중입니다!', 'info');
+            }
+
+            completeSale(id) {
+                const sale = this.sales.find(s => s.id === id);
+                if (sale) {
+                    sale.status = 'completed';
+                    this.filterSales();
+                    this.showNotification('판매가 완료 처리되었습니다!', 'success');
+                }
+            }
+
+            cancelSale(id) {
+                if (confirm('정말로 이 판매를 취소하시겠습니까?')) {
+                    const sale = this.sales.find(s => s.id === id);
+                    if (sale) {
+                        sale.status = 'cancelled';
+                        this.filterSales();
+                        this.showNotification('판매가 취소되었습니다!', 'success');
+                    }
+                }
+            }
+
+            filterSales() {
+                const dateFilter = document.getElementById('dateFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+
+                this.filteredSales = this.sales.filter(sale => {
+                    const matchesDate = !dateFilter || sale.date === dateFilter;
+                    const matchesStatus = !statusFilter || sale.status === statusFilter;
+                    return matchesDate && matchesStatus;
+                });
+
+                this.renderSales();
+                this.animateElements();
+            }
+
+            initializeCharts() {
+                // 매출 추이 차트
+                const salesTrendChart = echarts.init(document.getElementById('salesTrendChart'));
+                const salesTrendOption = {
+                    tooltip: {
+                        trigger: 'axis',
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        borderColor: '#e5e7eb',
+                        textStyle: { color: '#374151' }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ['월', '화', '수', '목', '금', '토', '일'],
+                        axisLine: { lineStyle: { color: '#e5e7eb' } },
+                        axisTick: { show: false },
+                        axisLabel: { color: '#6b7280' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLine: { show: false },
+                        axisTick: { show: false },
+                        axisLabel: { color: '#6b7280' },
+                        splitLine: { lineStyle: { color: '#f3f4f6' } }
+                    },
+                    series: [{
+                        data: [320000, 450000, 380000, 520000, 480000, 650000, 590000],
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: { color: '#3b82f6', width: 3 },
+                        itemStyle: { color: '#3b82f6' },
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0, y: 0, x2: 0, y2: 1,
+                                colorStops: [
+                                    { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
+                                    { offset: 1, color: 'rgba(59, 130, 246, 0.05)' }
+                                ]
+                            }
+                        }
+                    }]
+                };
+                salesTrendChart.setOption(salesTrendOption);
+
+                // 인기 상품 차트
+                const productSalesChart = echarts.init(document.getElementById('productSalesChart'));
+                const productSalesOption = {
+                    tooltip: {
+                        trigger: 'item',
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        borderColor: '#e5e7eb',
+                        textStyle: { color: '#374151' }
+                    },
+                    series: [{
+                        type: 'bar',
+                        data: [
+                            { value: 45, name: '무선 마우스', itemStyle: { color: '#3b82f6' } },
+                            { value: 38, name: '블루투스 스피커', itemStyle: { color: '#10b981' } },
+                            { value: 32, name: '노트북 가방', itemStyle: { color: '#f59e0b' } },
+                            { value: 28, name: '티셔츠', itemStyle: { color: '#8b5cf6' } },
+                            { value: 22, name: '청바지', itemStyle: { color: '#ef4444' } }
+                        ],
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }],
+                    xAxis: {
+                        type: 'category',
+                        data: ['무선 마우스', '블루투스 스피커', '노트북 가방', '티셔츠', '청바지'],
+                        axisLine: { lineStyle: { color: '#e5e7eb' } },
+                        axisTick: { show: false },
+                        axisLabel: { color: '#6b7280', rotate: 45 }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLine: { show: false },
+                        axisTick: { show: false },
+                        axisLabel: { color: '#6b7280' },
+                        splitLine: { lineStyle: { color: '#f3f4f6' } }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '15%',
+                        containLabel: true
+                    }
+                };
+                productSalesChart.setOption(productSalesOption);
+
+                // 반응형 차트
+                window.addEventListener('resize', () => {
+                    salesTrendChart.resize();
+                    productSalesChart.resize();
+                });
+            }
+
+            updateCharts() {
+                // 차트 데이터 업데이트 로직
+                this.initializeCharts();
+            }
+
+            animateElements() {
+                anime({
+                    targets: '#salesTableBody tr',
+                    opacity: [0, 1],
+                    translateY: [20, 0],
+                    duration: 500,
+                    delay: anime.stagger(50),
+                    easing: 'easeOutQuad'
+                });
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform translate-x-full transition-transform duration-300`;
+                
+                const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+                notification.classList.add(bgColor);
+                
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="text-white font-medium">${message}</span>
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // 초기화
+        const salesManager = new SalesManager();
+    </script>
+</body>
+</html>

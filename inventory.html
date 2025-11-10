@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>재고 관리 - 매장 관리 시스템</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .stock-low { background-color: #fef2f2; border-left: 4px solid #ef4444; }
+        .stock-normal { background-color: #f0fdf4; border-left: 4px solid #22c55e; }
+        .stock-warning { background-color: #fffbeb; border-left: 4px solid #f59e0b; }
+        .search-highlight { background-color: #fef3c7; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-white font-bold text-sm">MS</span>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-900">매장 관리 시스템</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-gray-900 transition-colors">대시보드</a>
+                    <a href="inventory.html" class="text-blue-600 font-medium border-b-2 border-blue-600 pb-1">재고 관리</a>
+                    <a href="sales.html" class="text-gray-600 hover:text-gray-900 transition-colors">판매 관리</a>
+                    <a href="staff.html" class="text-gray-600 hover:text-gray-900 transition-colors">직원 관리</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="mb-8 animate-fade-in">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">재고 관리</h2>
+                    <p class="text-gray-600 mt-1">제품 재고를 실시간으로 관리하세요</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="addProductBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        제품 추가
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                        재고 업데이트
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6 animate-fade-in">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                <div class="flex-1 max-w-lg">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="제품 검색..." 
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <select id="categoryFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">모든 카테고리</option>
+                        <option value="electronics">전자제품</option>
+                        <option value="clothing">의류</option>
+                        <option value="accessories">액세서리</option>
+                        <option value="books">도서</option>
+                    </select>
+                    <select id="stockFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">모든 재고</option>
+                        <option value="low">부족</option>
+                        <option value="normal">정상</option>
+                        <option value="high">과잉</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">전체 제품</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-1" id="totalProducts">1,247</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">낮은 재고</p>
+                        <p class="text-2xl font-bold text-red-600 mt-1" id="lowStockCount">23</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">총 재고 가치</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-1">₩45,230,000</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">입고 예정</p>
+                        <p class="text-2xl font-bold text-blue-600 mt-1">45</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product List -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden animate-fade-in">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">제품 목록</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제품</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">카테고리</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">재고</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">가격</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Products will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">새 제품 추가</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form id="addProductForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">제품명</label>
+                        <input type="text" id="productName" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
+                        <select id="productCategory" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="">선택하세요</option>
+                            <option value="electronics">전자제품</option>
+                            <option value="clothing">의류</option>
+                            <option value="accessories">액세서리</option>
+                            <option value="books">도서</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">재고 수량</label>
+                        <input type="number" id="productStock" required min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">가격 (원)</label>
+                        <input type="number" id="productPrice" required min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex space-x-3 pt-4">
+                        <button type="button" id="cancelAdd" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">취소</button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">추가</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center">
+                <p class="text-gray-600">© 2025 매장 관리 시스템. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 재고 관리 시스템
+        class InventoryManager {
+            constructor() {
+                this.products = [
+                    { id: 1, name: '무선 마우스', category: 'electronics', stock: 5, price: 25000, status: 'low' },
+                    { id: 2, name: '블루투스 스피커', category: 'electronics', stock: 8, price: 45000, status: 'low' },
+                    { id: 3, name: '노트북 가방', category: 'accessories', stock: 15, price: 35000, status: 'normal' },
+                    { id: 4, name: '티셔츠', category: 'clothing', stock: 45, price: 15000, status: 'normal' },
+                    { id: 5, name: '청바지', category: 'clothing', stock: 32, price: 45000, status: 'normal' },
+                    { id: 6, name: '스마트워치', category: 'electronics', stock: 12, price: 180000, status: 'normal' },
+                    { id: 7, name: '책상', category: 'furniture', stock: 3, price: 85000, status: 'low' },
+                    { id: 8, name: '의자', category: 'furniture', stock: 18, price: 55000, status: 'normal' },
+                    { id: 9, name: '책', category: 'books', stock: 67, price: 12000, status: 'normal' },
+                    { id: 10, name: '헤드폰', category: 'electronics', stock: 25, price: 75000, status: 'normal' }
+                ];
+                this.filteredProducts = [...this.products];
+                this.init();
+            }
+
+            init() {
+                this.renderProducts();
+                this.setupEventListeners();
+                this.updateStats();
+                this.animateElements();
+            }
+
+            renderProducts() {
+                const tbody = document.getElementById('productTableBody');
+                tbody.innerHTML = '';
+
+                this.filteredProducts.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.className = `stock-${product.status} hover:bg-gray-50 transition-colors`;
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-sm font-medium text-gray-600">${product.name.charAt(0)}</span>
+                                </div>
+                                <div class="text-sm font-medium text-gray-900">${product.name}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                ${this.getCategoryName(product.category)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-900">${product.stock}개</span>
+                                <div class="ml-2 w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-${product.status === 'low' ? 'red' : product.status === 'normal' ? 'green' : 'yellow'}-500 h-2 rounded-full" 
+                                         style="width: ${Math.min((product.stock / 50) * 100, 100)}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ₩${product.price.toLocaleString()}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                ${product.status === 'low' ? 'bg-red-100 text-red-800' : 
+                                  product.status === 'normal' ? 'bg-green-100 text-green-800' : 
+                                  'bg-yellow-100 text-yellow-800'}">
+                                ${this.getStatusName(product.status)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="inventory.editProduct(${product.id})" 
+                                    class="text-blue-600 hover:text-blue-900 mr-3">수정</button>
+                            <button onclick="inventory.deleteProduct(${product.id})" 
+                                    class="text-red-600 hover:text-red-900">삭제</button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+
+            getCategoryName(category) {
+                const categories = {
+                    'electronics': '전자제품',
+                    'clothing': '의류',
+                    'accessories': '액세서리',
+                    'books': '도서',
+                    'furniture': '가구'
+                };
+                return categories[category] || category;
+            }
+
+            getStatusName(status) {
+                const statuses = {
+                    'low': '부족',
+                    'normal': '정상',
+                    'high': '과잉'
+                };
+                return statuses[status] || status;
+            }
+
+            setupEventListeners() {
+                // 검색 기능
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.filterProducts();
+                });
+
+                // 필터 기능
+                document.getElementById('categoryFilter').addEventListener('change', () => {
+                    this.filterProducts();
+                });
+
+                document.getElementById('stockFilter').addEventListener('change', () => {
+                    this.filterProducts();
+                });
+
+                // 모달 기능
+                document.getElementById('addProductBtn').addEventListener('click', () => {
+                    this.showModal();
+                });
+
+                document.getElementById('closeModal').addEventListener('click', () => {
+                    this.hideModal();
+                });
+
+                document.getElementById('cancelAdd').addEventListener('click', () => {
+                    this.hideModal();
+                });
+
+                // 폼 제출
+                document.getElementById('addProductForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addProduct();
+                });
+            }
+
+            filterProducts() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const categoryFilter = document.getElementById('categoryFilter').value;
+                const stockFilter = document.getElementById('stockFilter').value;
+
+                this.filteredProducts = this.products.filter(product => {
+                    const matchesSearch = product.name.toLowerCase().includes(searchTerm);
+                    const matchesCategory = !categoryFilter || product.category === categoryFilter;
+                    const matchesStock = !stockFilter || product.status === stockFilter;
+
+                    return matchesSearch && matchesCategory && matchesStock;
+                });
+
+                this.renderProducts();
+                this.animateElements();
+            }
+
+            showModal() {
+                document.getElementById('addProductModal').classList.remove('hidden');
+                anime({
+                    targets: '#addProductModal .bg-white',
+                    scale: [0.8, 1],
+                    opacity: [0, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            }
+
+            hideModal() {
+                anime({
+                    targets: '#addProductModal .bg-white',
+                    scale: [1, 0.8],
+                    opacity: [1, 0],
+                    duration: 200,
+                    easing: 'easeInQuad',
+                    complete: () => {
+                        document.getElementById('addProductModal').classList.add('hidden');
+                        document.getElementById('addProductForm').reset();
+                    }
+                });
+            }
+
+            addProduct() {
+                const name = document.getElementById('productName').value;
+                const category = document.getElementById('productCategory').value;
+                const stock = parseInt(document.getElementById('productStock').value);
+                const price = parseInt(document.getElementById('productPrice').value);
+
+                const newProduct = {
+                    id: Math.max(...this.products.map(p => p.id)) + 1,
+                    name,
+                    category,
+                    stock,
+                    price,
+                    status: stock <= 10 ? 'low' : stock <= 20 ? 'warning' : 'normal'
+                };
+
+                this.products.unshift(newProduct);
+                this.filterProducts();
+                this.updateStats();
+                this.hideModal();
+
+                this.showNotification('제품이 성공적으로 추가되었습니다!', 'success');
+            }
+
+            editProduct(id) {
+                this.showNotification('제품 수정 기능은 준비 중입니다!', 'info');
+            }
+
+            deleteProduct(id) {
+                if (confirm('정말로 이 제품을 삭제하시겠습니까?')) {
+                    this.products = this.products.filter(product => product.id !== id);
+                    this.filterProducts();
+                    this.updateStats();
+                    this.showNotification('제품이 삭제되었습니다!', 'success');
+                }
+            }
+
+            updateStats() {
+                const totalProducts = this.products.length;
+                const lowStockCount = this.products.filter(p => p.status === 'low').length;
+
+                document.getElementById('totalProducts').textContent = totalProducts.toLocaleString();
+                document.getElementById('lowStockCount').textContent = lowStockCount;
+            }
+
+            animateElements() {
+                anime({
+                    targets: '#productTableBody tr',
+                    opacity: [0, 1],
+                    translateY: [20, 0],
+                    duration: 500,
+                    delay: anime.stagger(50),
+                    easing: 'easeOutQuad'
+                });
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform translate-x-full transition-transform duration-300`;
+                
+                const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+                notification.classList.add(bgColor);
+                
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="text-white font-medium">${message}</span>
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // 초기화
+        const inventory = new InventoryManager();
+    </script>
+</body>
+</html>

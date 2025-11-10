@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>직원 관리 - 매장 관리 시스템</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .status-online { background-color: #10b981; }
+        .status-offline { background-color: #6b7280; }
+        .status-break { background-color: #f59e0b; }
+        .status-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-white font-bold text-sm">MS</span>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-900">매장 관리 시스템</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-gray-900 transition-colors">대시보드</a>
+                    <a href="inventory.html" class="text-gray-600 hover:text-gray-900 transition-colors">재고 관리</a>
+                    <a href="sales.html" class="text-gray-600 hover:text-gray-900 transition-colors">판매 관리</a>
+                    <a href="staff.html" class="text-blue-600 font-medium border-b-2 border-blue-600 pb-1">직원 관리</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="mb-8 animate-fade-in">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">직원 관리</h2>
+                    <p class="text-gray-600 mt-1">직원 정보와 근무 현황을 관리하세요</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="addStaffBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        직원 추가
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                        일정 관리
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">전체 직원</p>
+                        <p class="text-2xl font-bold text-gray-900">12</p>
+                        <p class="text-sm text-gray-600 mt-1">9명 남성, 3명 여성</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">근무 중</p>
+                        <p class="text-2xl font-bold text-green-600">9</p>
+                        <p class="text-sm text-gray-600 mt-1">3명 휴식 중</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">월 평균 근무</p>
+                        <p class="text-2xl font-bold text-gray-900">168</p>
+                        <p class="text-sm text-gray-600 mt-1">시간/인</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">이번 달 휴가</p>
+                        <p class="text-2xl font-bold text-orange-600">5</p>
+                        <p class="text-sm text-gray-600 mt-1">명</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Performance Chart -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8 animate-fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">직원 성과</h3>
+                <div class="flex space-x-2">
+                    <button class="text-sm px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-medium">이번 달</button>
+                    <button class="text-sm px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-lg">지난 달</button>
+                    <button class="text-sm px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-lg">분기</button>
+                </div>
+            </div>
+            <div id="staffPerformanceChart" style="height: 350px;"></div>
+        </div>
+
+        <!-- Staff List -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden animate-fade-in">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">직원 목록</h3>
+                    <div class="flex items-center space-x-4">
+                        <input type="text" id="searchStaff" placeholder="직원 검색..." 
+                               class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        <select id="departmentFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            <option value="">모든 부서</option>
+                            <option value="sales">판매</option>
+                            <option value="inventory">재고</option>
+                            <option value="management">관리</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">직원</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">부서</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">성과</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">입사일</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staffTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Staff data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Staff Modal -->
+    <div id="addStaffModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">새 직원 등록</h3>
+                    <button id="closeStaffModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form id="addStaffForm" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+                            <input type="text" id="staffName" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">부서</label>
+                            <select id="staffDepartment" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                <option value="">선택하세요</option>
+                                <option value="sales">판매</option>
+                                <option value="inventory">재고</option>
+                                <option value="management">관리</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+                            <input type="tel" id="staffPhone" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                            <input type="email" id="staffEmail" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">직급</label>
+                        <select id="staffPosition" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="">선택하세요</option>
+                            <option value="staff">사원</option>
+                            <option value="senior">주임</option>
+                            <option value="assistant">대리</option>
+                            <option value="manager">과장</option>
+                            <option value="director">부장</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-3 pt-4">
+                        <button type="button" id="cancelAddStaff" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">취소</button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">등록</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center">
+                <p class="text-gray-600">© 2025 매장 관리 시스템. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 직원 관리 시스템
+        class StaffManager {
+            constructor() {
+                this.staff = [
+                    { id: 1, name: '김철수', department: 'sales', status: 'online', performance: 95, phone: '010-1234-5678', email: 'kim@store.com', position: 'manager', hireDate: '2020-03-15' },
+                    { id: 2, name: '이영희', department: 'inventory', status: 'online', performance: 88, phone: '010-2345-6789', email: 'lee@store.com', position: 'senior', hireDate: '2021-06-20' },
+                    { id: 3, name: '박지영', department: 'sales', status: 'break', performance: 92, phone: '010-3456-7890', email: 'park@store.com', position: 'assistant', hireDate: '2022-01-10' },
+                    { id: 4, name: '김민수', department: 'management', status: 'online', performance: 98, phone: '010-4567-8901', email: 'kimms@store.com', position: 'director', hireDate: '2019-11-05' },
+                    { id: 5, name: '이하늘', department: 'sales', status: 'online', performance: 85, phone: '010-5678-9012', email: 'leehn@store.com', position: 'staff', hireDate: '2023-02-28' },
+                    { id: 6, name: '박서준', department: 'inventory', status: 'offline', performance: 78, phone: '010-6789-0123', email: 'parksj@store.com', position: 'staff', hireDate: '2023-05-15' },
+                    { id: 7, name: '김다은', department: 'sales', status: 'online', performance: 90, phone: '010-7890-1234', email: 'kimde@store.com', position: 'senior', hireDate: '2021-09-01' },
+                    { id: 8, name: '이우진', department: 'inventory', status: 'online', performance: 83, phone: '010-8901-2345', email: 'leewj@store.com', position: 'assistant', hireDate: '2022-04-12' },
+                    { id: 9, name: '박지민', department: 'sales', status: 'break', performance: 87, phone: '010-9012-3456', email: 'parkjm@store.com', position: 'staff', hireDate: '2023-07-20' },
+                    { id: 10, name: '김서연', department: 'management', status: 'online', performance: 94, phone: '010-0123-4567', email: 'kimsy@store.com', position: 'manager', hireDate: '2020-08-30' }
+                ];
+                this.filteredStaff = [...this.staff];
+                this.init();
+            }
+
+            init() {
+                this.renderStaff();
+                this.setupEventListeners();
+                this.initializeChart();
+                this.animateElements();
+            }
+
+            renderStaff() {
+                const tbody = document.getElementById('staffTableBody');
+                tbody.innerHTML = '';
+
+                this.filteredStaff.forEach(member => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50 transition-colors';
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-sm font-medium text-gray-600">${member.name.charAt(0)}</span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">${member.name}</div>
+                                    <div class="text-sm text-gray-500">${this.getPositionName(member.position)}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                ${this.getDepartmentName(member.department)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <span class="status-indicator status-${member.status}"></span>
+                                <span class="text-sm text-gray-900">${this.getStatusName(member.status)}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="text-sm font-medium text-gray-900">${member.performance}%</div>
+                                <div class="ml-2 w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${member.performance}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${member.phone}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${member.hireDate}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="staffManager.editStaff(${member.id})" 
+                                    class="text-blue-600 hover:text-blue-900 mr-3">수정</button>
+                            <button onclick="staffManager.viewSchedule(${member.id})" 
+                                    class="text-green-600 hover:text-green-900 mr-3">일정</button>
+                            <button onclick="staffManager.deleteStaff(${member.id})" 
+                                    class="text-red-600 hover:text-red-900">삭제</button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+
+            getDepartmentName(department) {
+                const departments = {
+                    'sales': '판매',
+                    'inventory': '재고',
+                    'management': '관리'
+                };
+                return departments[department] || department;
+            }
+
+            getPositionName(position) {
+                const positions = {
+                    'staff': '사원',
+                    'senior': '주임',
+                    'assistant': '대리',
+                    'manager': '과장',
+                    'director': '부장'
+                };
+                return positions[position] || position;
+            }
+
+            getStatusName(status) {
+                const statuses = {
+                    'online': '근무 중',
+                    'offline': '퇴근',
+                    'break': '휴식 중'
+                };
+                return statuses[status] || status;
+            }
+
+            setupEventListeners() {
+                // 검색 기능
+                document.getElementById('searchStaff').addEventListener('input', (e) => {
+                    this.filterStaff();
+                });
+
+                // 부서 필터
+                document.getElementById('departmentFilter').addEventListener('change', () => {
+                    this.filterStaff();
+                });
+
+                // 직원 추가 모달
+                document.getElementById('addStaffBtn').addEventListener('click', () => {
+                    this.showAddStaffModal();
+                });
+
+                document.getElementById('closeStaffModal').addEventListener('click', () => {
+                    this.hideAddStaffModal();
+                });
+
+                document.getElementById('cancelAddStaff').addEventListener('click', () => {
+                    this.hideAddStaffModal();
+                });
+
+                // 직원 추가 폼
+                document.getElementById('addStaffForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addStaff();
+                });
+            }
+
+            filterStaff() {
+                const searchTerm = document.getElementById('searchStaff').value.toLowerCase();
+                const departmentFilter = document.getElementById('departmentFilter').value;
+
+                this.filteredStaff = this.staff.filter(member => {
+                    const matchesSearch = member.name.toLowerCase().includes(searchTerm) || 
+                                        member.phone.includes(searchTerm) ||
+                                        member.email.toLowerCase().includes(searchTerm);
+                    const matchesDepartment = !departmentFilter || member.department === departmentFilter;
+
+                    return matchesSearch && matchesDepartment;
+                });
+
+                this.renderStaff();
+                this.animateElements();
+            }
+
+            showAddStaffModal() {
+                document.getElementById('addStaffModal').classList.remove('hidden');
+                anime({
+                    targets: '#addStaffModal .bg-white',
+                    scale: [0.8, 1],
+                    opacity: [0, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            }
+
+            hideAddStaffModal() {
+                anime({
+                    targets: '#addStaffModal .bg-white',
+                    scale: [1, 0.8],
+                    opacity: [1, 0],
+                    duration: 200,
+                    easing: 'easeInQuad',
+                    complete: () => {
+                        document.getElementById('addStaffModal').classList.add('hidden');
+                        document.getElementById('addStaffForm').reset();
+                    }
+                });
+            }
+
+            addStaff() {
+                const name = document.getElementById('staffName').value;
+                const department = document.getElementById('staffDepartment').value;
+                const phone = document.getElementById('staffPhone').value;
+                const email = document.getElementById('staffEmail').value;
+                const position = document.getElementById('staffPosition').value;
+
+                const newStaff = {
+                    id: Math.max(...this.staff.map(s => s.id)) + 1,
+                    name,
+                    department,
+                    status: 'offline',
+                    performance: Math.floor(Math.random() * 20) + 80, // 80-100 사이 랜덤
+                    phone,
+                    email,
+                    position,
+                    hireDate: new Date().toISOString().split('T')[0]
+                };
+
+                this.staff.unshift(newStaff);
+                this.filterStaff();
+                this.hideAddStaffModal();
+                this.updateChart();
+                this.showNotification('새 직원이 등록되었습니다!', 'success');
+            }
+
+            editStaff(id) {
+                this.showNotification('직원 수정 기능은 준비 중입니다!', 'info');
+            }
+
+            viewSchedule(id) {
+                const staff = this.staff.find(s => s.id === id);
+                if (staff) {
+                    this.showNotification(`${staff.name}님의 근무 일정을 확인합니다.`, 'info');
+                }
+            }
+
+            deleteStaff(id) {
+                if (confirm('정말로 이 직원을 삭제하시겠습니까?')) {
+                    this.staff = this.staff.filter(member => member.id !== id);
+                    this.filterStaff();
+                    this.updateChart();
+                    this.showNotification('직원 정보가 삭제되었습니다!', 'success');
+                }
+            }
+
+            initializeChart() {
+                const chart = echarts.init(document.getElementById('staffPerformanceChart'));
+                const option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        borderColor: '#e5e7eb',
+                        textStyle: { color: '#374151' }
+                    },
+                    legend: {
+                        data: ['판매 실적', '고객 만족도', '근무 태도'],
+                        bottom: 0
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '15%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ['김철수', '이영희', '박지영', '김민수', '이하늘', '박서준', '김다은', '이우진', '박지민', '김서연'],
+                        axisLine: { lineStyle: { color: '#e5e7eb' } },
+                        axisTick: { show: false },
+                        axisLabel: { color: '#6b7280' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        max: 100,
+                        axisLine: { show: false },
+                        axisTick: { show: false },
+                        axisLabel: { color: '#6b7280' },
+                        splitLine: { lineStyle: { color: '#f3f4f6' } }
+                    },
+                    series: [
+                        {
+                            name: '판매 실적',
+                            type: 'bar',
+                            data: [95, 88, 92, 98, 85, 78, 90, 83, 87, 94],
+                            itemStyle: { color: '#3b82f6' }
+                        },
+                        {
+                            name: '고객 만족도',
+                            type: 'bar',
+                            data: [92, 90, 88, 95, 82, 85, 89, 86, 84, 91],
+                            itemStyle: { color: '#10b981' }
+                        },
+                        {
+                            name: '근무 태도',
+                            data: [96, 85, 95, 97, 88, 80, 92, 85, 90, 93],
+                            type: 'line',
+                            smooth: true,
+                            lineStyle: { color: '#f59e0b', width: 3 },
+                            itemStyle: { color: '#f59e0b' }
+                        }
+                    ]
+                };
+                chart.setOption(option);
+
+                // 반응형 차트
+                window.addEventListener('resize', () => {
+                    chart.resize();
+                });
+
+                this.chart = chart;
+            }
+
+            updateChart() {
+                // 차트 데이터 업데이트
+                const names = this.staff.map(s => s.name);
+                const performance = this.staff.map(s => s.performance);
+                
+                this.chart.setOption({
+                    xAxis: { data: names },
+                    series: [{
+                        data: performance
+                    }]
+                });
+            }
+
+            animateElements() {
+                anime({
+                    targets: '#staffTableBody tr',
+                    opacity: [0, 1],
+                    translateY: [20, 0],
+                    duration: 500,
+                    delay: anime.stagger(50),
+                    easing: 'easeOutQuad'
+                });
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform translate-x-full transition-transform duration-300`;
+                
+                const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+                notification.classList.add(bgColor);
+                
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="text-white font-medium">${message}</span>
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // 초기화
+        const staffManager = new StaffManager();
+    </script>
+</body>
+</html>
