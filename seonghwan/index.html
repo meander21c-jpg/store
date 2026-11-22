@@ -72,7 +72,7 @@
   <svg viewBox="100 130 824 744" fill="none" stroke="#0B843A" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"><path d="M125 516 512 158 898 516"/><path d="M666 296V212H789V410"/><path d="M235 530V846H428V640H595V846H789V530"/></svg>
   <div>
     <h1>성환공인중개사사무소 업무 통합</h1>
-    <div class="sub">탭을 누르면 해당 앱이 열립니다 · 숫자키 1~9로도 이동</div>
+    <div class="sub">탭을 누르면 해당 앱이 열립니다</div>
   </div>
   <div class="sp"></div>
   <button id="resetAll" title="주소 수정한 내용을 모두 처음 값으로 되돌립니다">주소 초기화</button>
@@ -96,10 +96,6 @@
    embed: true  → 이 페이지 안에 바로 띄움
    embed: false → 보안상 다른 페이지 안에 못 들어가는 앱 → '열기' 버튼으로 별도 창에서 엶 */
 const APPS = [
-  {id:'ad',      name:'매물 광고',            emoji:'📢', kind:'주소 미등록',    url:'', embed:false},
-  {id:'owner',   name:'건물주연락처',         emoji:'📇', kind:'구글 시트',      url:'https://docs.google.com/spreadsheets/d/1gP48ceRAMeo5wW4wRgaU1SzGhXyd2Bi3vOVwzwfOiPE/edit', embed:true},
-  {id:'card',    name:'명함',                 emoji:'🪪', kind:'앱시트 앱',      url:'https://www.appsheet.com/start/2277dd8c-ef6e-44d3-8219-ea81a4df35db', embed:false},
-  {id:'contact', name:'연락처',               emoji:'📒', kind:'구글 주소록',    url:'https://contacts.google.com/', embed:false},
   {id:'person',  name:'건물주 인적 사항',     emoji:'🗂️', kind:'Claude 앱',      url:'https://claude.ai/artifact/3CgjsSCBCfYzA6U9dwMwZ5', embed:false},
   {id:'terms',   name:'특약 선택·복사 도구',  emoji:'📝', kind:'Claude 앱',      url:'https://claude.ai/artifact/QK1LbY2HdWFSadgetytiin', embed:false},
   {id:'fee',     name:'중개보수 계산기,영수증',emoji:'🧮', kind:'Claude 앱',     url:'https://claude.ai/artifact/EuL8RyyLoRvZ1o8ksqsoak', embed:false},
@@ -110,8 +106,6 @@ const APPS = [
   {id:'voice',   name:'음성 변환 받아쓰기 노트',emoji:'🎙️', kind:'Claude 앱',    url:'https://claude.ai/artifact/LKCnS3trZ3Hiu8oN2JVxpj', embed:false},
   {id:'law',     name:'법률 검토·정정 프로그램',emoji:'⚖️', kind:'Apps Script 웹앱', url:'https://script.google.com/macros/s/AKfycbz5gZMcaqzQnQnW23DJ-IU6R4W6N3Cirof4kDIu8LDy7Rx9soxRuOKuZlmWWLiqWY3ftQ/exec', embed:false},
   {id:'check',   name:'계약서 점검기',        emoji:'✅', kind:'Claude 앱',      url:'https://claude.ai/artifact/UM5L5JmH6Di7VfG6xJX9gc', embed:false},
-  {id:'site',    name:'성환 홈피(구글사이트)',emoji:'🏠', kind:'구글 사이트',    url:'https://sites.google.com/view/seonghwan-realty', embed:false},
-  {id:'board',   name:'홈페이지 상담·매물접수 게시판', emoji:'💬', kind:'Apps Script 웹앱', url:'https://script.google.com/macros/s/AKfycbyJszoCNKo9WmqBvcE6Rg5gO5_-zxUXDlIfxg7O5h9R5ghnNEkbNCa7zrfPlvXA6brNVg/exec', embed:false},
 ];
 
 /* ───────── 저장소(이 브라우저에만 저장) ───────── */
@@ -130,10 +124,10 @@ function renderTabs(){
   const home=document.createElement('button');
   home.textContent='🏁 전체 보기'; home.dataset.id='home';
   home.onclick=()=>show('home'); tabsEl.appendChild(home);
-  APPS.forEach((a0,i)=>{
+  APPS.forEach(a0=>{
     const a=app(a0.id), b=document.createElement('button');
     b.dataset.id=a.id;
-    b.innerHTML=(i<9?'<span class="n">'+(i+1)+'</span>':'')+a.emoji+' '+a.name;
+    b.innerHTML=a.emoji+' '+a.name;
     b.onclick=()=>show(a.id); tabsEl.appendChild(b);
   });
 }
@@ -212,13 +206,6 @@ document.getElementById('resetAll').onclick=()=>{
   Object.values(frames).forEach(f=>f.remove()); for(const k in frames) delete frames[k];
   renderTabs(); show(current||'home');
 };
-
-/* 숫자키 1~9 로 탭 이동 (입력창에 쓰는 중이면 무시) */
-document.addEventListener('keydown',ev=>{
-  if(dlg.open||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
-  const n=parseInt(ev.key,10); if(n>=1&&n<=9&&APPS[n-1]) show(APPS[n-1].id);
-  if(ev.key==='0') show('home');
-});
 
 renderTabs();
 show(store.last && (store.last==='home'||APPS.some(a=>a.id===store.last)) ? store.last : 'home');
