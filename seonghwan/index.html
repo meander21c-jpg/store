@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>성환공인중개사사무소 · 업무 통합</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='100 130 824 744' fill='none' stroke='%230B843A' stroke-width='60' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M125 516 512 158 898 516'/%3E%3Cpath d='M666 296V212H789V410'/%3E%3Cpath d='M235 530V846H428V640H595V846H789V530'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --green:#0B843A; --green-d:#086b2f; --green-l:#e8f5ec;
+    --ink:#1d2621; --sub:#5d6b63; --line:#dfe6e1; --bg:#f5f7f6; --card:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;color:var(--ink);background:var(--bg);display:flex;flex-direction:column}
+  header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line)}
+  header svg{width:34px;height:31px;flex:none}
+  header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.3px}
+  header .sub{font-size:13px;color:var(--sub)}
+  header .sp{flex:1}
+  header button{font:inherit;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--sub)}
+  header button:hover{border-color:var(--green);color:var(--green)}
+
+  nav{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line)}
+  nav button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--ink);white-space:nowrap;display:flex;align-items:center;gap:6px}
+  nav button .n{font-size:11px;color:#9aa6a0}
+  nav button:hover{border-color:var(--green)}
+  nav button.on{background:var(--green);border-color:var(--green);color:#fff}
+  nav button.on .n{color:#cfe9d8}
+
+  main{flex:1;min-height:0;display:flex;flex-direction:column}
+  .bar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--green-l);border-bottom:1px solid var(--line);font-size:13px}
+  .bar b{font-size:15px}
+  .bar .url{color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+  .bar button{font:inherit;font-size:13px;border:1px solid var(--green);background:#fff;color:var(--green);border-radius:8px;padding:5px 10px;cursor:pointer;white-space:nowrap}
+  .bar button.main{background:var(--green);color:#fff}
+  .bar button:hover{filter:brightness(.95)}
+  .stage{flex:1;min-height:0;position:relative;background:#fff}
+  .stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .stage iframe.hide{display:none}
+
+  .launch{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px}
+  .launch .box{max-width:520px;width:100%;text-align:center;border:1px solid var(--line);border-radius:16px;padding:36px 28px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+  .launch .ico{font-size:40px;margin-bottom:8px}
+  .launch h2{margin:0 0 8px;font-size:22px}
+  .launch p{color:var(--sub);font-size:14px;line-height:1.6;margin:0 0 20px}
+  .launch .go{font:inherit;font-size:17px;font-weight:700;background:var(--green);color:#fff;border:0;border-radius:12px;padding:14px 28px;cursor:pointer}
+  .launch .go:hover{background:var(--green-d)}
+
+  .home{position:absolute;inset:0;overflow:auto;padding:20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;max-width:1200px;margin:0 auto}
+  .card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:.15s}
+  .card:hover{border-color:var(--green);box-shadow:0 3px 14px rgba(11,132,58,.12)}
+  .card .t{font-weight:700;font-size:15px}
+  .card .k{font-size:12px;color:var(--sub)}
+  .card .e{font-size:26px}
+  .home h2{max-width:1200px;margin:0 auto 12px;font-size:16px;color:var(--sub);font-weight:600}
+
+  dialog{border:1px solid var(--line);border-radius:14px;padding:20px;width:min(560px,92vw)}
+  dialog h3{margin:0 0 10px}
+  dialog input{width:100%;font:inherit;font-size:14px;padding:9px;border:1px solid var(--line);border-radius:8px}
+  dialog .row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+  dialog button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 14px;cursor:pointer}
+  dialog button.ok{background:var(--green);border-color:var(--green);color:#fff}
+  dialog .help{font-size:12px;color:var(--sub);margin-top:8px;line-height:1.5}
+  dialog label{display:flex;gap:6px;align-items:center;font-size:13px;margin-top:10px}
+  dialog label input{width:auto}
+</style>
+</head>
+<body>
+<header>
+  <svg viewBox="100 130 824 744" fill="none" stroke="#0B843A" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"><path d="M125 516 512 158 898 516"/><path d="M666 296V212H789V410"/><path d="M235 530V846H428V640H595V846H789V530"/></svg>
+  <div>
+    <h1>성환공인중개사사무소 업무 통합</h1>
+    <div class="sub">탭을 누르면 해당 앱이 열립니다 · 숫자키 1~9로도 이동</div>
+  </div>
+  <div class="sp"></div>
+  <button id="resetAll" title="주소 수정한 내용을 모두 처음 값으로 되돌립니다">주소 초기화</button>
+</header>
+<nav id="tabs"></nav>
+<main>
+  <div class="bar" id="bar"></div>
+  <div class="stage" id="stage"></div>
+</main>
+
+<dialog id="dlg">
+  <h3 id="dlgTitle">주소 수정</h3>
+  <input id="dlgUrl" placeholder="https://...">
+  <label><input type="checkbox" id="dlgEmbed"> 이 페이지 안에 바로 띄우기 (안 되면 체크 해제 → 새 창으로 열기)</label>
+  <div class="help">앱 주소(URL)를 붙여넣고 저장하세요. 저장한 주소는 이 컴퓨터의 이 브라우저에만 기억됩니다.</div>
+  <div class="row"><button id="dlgCancel">취소</button><button class="ok" id="dlgOk">저장</button></div>
+</dialog>
+
+<script>
+/* ───────── 앱 목록 (여기만 고치면 탭이 바뀝니다) ─────────
+   embed: true  → 이 페이지 안에 바로 띄움
+   embed: false → 보안상 다른 페이지 안에 못 들어가는 앱 → '열기' 버튼으로 별도 창에서 엶 */
+const APPS = [
+  {id:'ad',      name:'매물 광고',            emoji:'📢', kind:'주소 미등록',    url:'', embed:false},
+  {id:'owner',   name:'건물주연락처',         emoji:'📇', kind:'구글 시트',      url:'https://docs.google.com/spreadsheets/d/1gP48ceRAMeo5wW4wRgaU1SzGhXyd2Bi3vOVwzwfOiPE/edit', embed:true},
+  {id:'card',    name:'명함',                 emoji:'🪪', kind:'앱시트 앱',      url:'https://www.appsheet.com/start/2277dd8c-ef6e-44d3-8219-ea81a4df35db', embed:true},
+  {id:'contact', name:'연락처',               emoji:'📒', kind:'구글 주소록',    url:'https://contacts.google.com/', embed:false},
+  {id:'person',  name:'건물주 인적 사항',     emoji:'🗂️', kind:'Claude 앱',      url:'https://claude.ai/artifact/3CgjsSCBCfYzA6U9dwMwZ5', embed:false},
+  {id:'terms',   name:'특약 선택·복사 도구',  emoji:'📝', kind:'Claude 앱',      url:'https://claude.ai/artifact/QK1LbY2HdWFSadgetytiin', embed:false},
+  {id:'fee',     name:'중개보수 계산기,영수증',emoji:'🧮', kind:'Claude 앱',     url:'https://claude.ai/artifact/EuL8RyyLoRvZ1o8ksqsoak', embed:false},
+  {id:'receipt', name:'영수증 발행·인쇄',     emoji:'🧾', kind:'Claude 앱',      url:'https://claude.ai/artifact/MW4xxJqZhW69q8HLhR6Bn2', embed:false},
+  {id:'idcard',  name:'주민증 인적사항 추출기',emoji:'🔍', kind:'Claude 앱',     url:'https://claude.ai/artifact/DMMk3N4x1AnvPNTpkB9Sid', embed:false},
+  {id:'ocr',     name:'문서 텍스트 추출기',   emoji:'📄', kind:'Claude 앱',      url:'https://claude.ai/artifact/TTmiTvV4YjFDw7iK7UZKam', embed:false},
+  {id:'notice',  name:'내용증명 자동작성',    emoji:'✉️', kind:'Claude 앱',      url:'https://claude.ai/artifact/2rwDeacnBkzjMUfuxBNadX', embed:false},
+  {id:'voice',   name:'음성 변환 받아쓰기 노트',emoji:'🎙️', kind:'Claude 앱',    url:'https://claude.ai/artifact/LKCnS3trZ3Hiu8oN2JVxpj', embed:false},
+  {id:'law',     name:'법률 검토·정정 프로그램',emoji:'⚖️', kind:'Apps Script 웹앱', url:'https://script.google.com/macros/s/AKfycbz5gZMcaqzQnQnW23DJ-IU6R4W6N3Cirof4kDIu8LDy7Rx9soxRuOKuZlmWWLiqWY3ftQ/exec', embed:false},
+  {id:'check',   name:'계약서 점검기',        emoji:'✅', kind:'Claude 앱',      url:'https://claude.ai/artifact/UM5L5JmH6Di7VfG6xJX9gc', embed:false},
+  {id:'site',    name:'성환 홈피(구글사이트)',emoji:'🏠', kind:'구글 사이트',    url:'https://sites.google.com/view/seonghwan-realty', embed:false},
+  {id:'board',   name:'홈페이지 상담·매물접수 게시판', emoji:'💬', kind:'Apps Script 웹앱', url:'https://script.google.com/macros/s/AKfycbyJszoCNKo9WmqBvcE6Rg5gO5_-zxUXDlIfxg7O5h9R5ghnNEkbNCa7zrfPlvXA6brNVg/exec', embed:false},
+];
+
+/* ───────── 저장소(이 브라우저에만 저장) ───────── */
+const KEY='seonghwan_hub_v1';
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+function save(s){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
+let store=load(); store.over=store.over||{};
+function app(id){const a=APPS.find(x=>x.id===id); return Object.assign({},a,store.over[id]||{});}
+
+const tabsEl=document.getElementById('tabs'), bar=document.getElementById('bar'), stage=document.getElementById('stage');
+const frames={};      // 한 번 연 앱은 탭을 옮겨도 그대로 유지(작업 내용 보존)
+let current=null;
+
+function renderTabs(){
+  tabsEl.innerHTML='';
+  const home=document.createElement('button');
+  home.textContent='🏁 전체 보기'; home.dataset.id='home';
+  home.onclick=()=>show('home'); tabsEl.appendChild(home);
+  APPS.forEach((a0,i)=>{
+    const a=app(a0.id), b=document.createElement('button');
+    b.dataset.id=a.id;
+    b.innerHTML=(i<9?'<span class="n">'+(i+1)+'</span>':'')+a.emoji+' '+a.name;
+    b.onclick=()=>show(a.id); tabsEl.appendChild(b);
+  });
+}
+
+function openWin(a){
+  if(!a.url){editUrl(a.id);return;}
+  const w=window.open(a.url,'sh_'+a.id);   // 같은 앱은 같은 창을 다시 사용
+  if(w) w.focus();
+}
+
+function show(id){
+  current=id; store.last=id; save(store);
+  [...tabsEl.children].forEach(b=>b.classList.toggle('on',b.dataset.id===id));
+  Object.values(frames).forEach(f=>f.classList.add('hide'));
+  stage.querySelectorAll('.launch,.home').forEach(n=>n.remove());
+
+  if(id==='home'){
+    bar.innerHTML='<b>🏁 전체 보기</b><span class="url">카드를 누르면 해당 탭으로 이동합니다</span>';
+    const h=document.createElement('div'); h.className='home';
+    h.innerHTML='<h2>업무 앱 '+APPS.length+'개</h2><div class="grid"></div>';
+    const g=h.querySelector('.grid');
+    APPS.forEach(a0=>{const a=app(a0.id);
+      const c=document.createElement('div'); c.className='card';
+      c.innerHTML='<div class="e">'+a.emoji+'</div><div class="t">'+a.name+'</div><div class="k">'+a.kind+(a.embed?' · 페이지 안에서 열림':' · 새 창으로 열림')+'</div>';
+      c.onclick=()=>show(a.id); g.appendChild(c);});
+    stage.appendChild(h); return;
+  }
+
+  const a=app(id);
+  bar.innerHTML='';
+  const t=document.createElement('b'); t.textContent=a.emoji+' '+a.name;
+  const u=document.createElement('span'); u.className='url'; u.textContent=a.url||'(주소가 아직 없습니다 — [주소 수정]을 눌러 넣어 주세요)';
+  const o=document.createElement('button'); o.className='main'; o.textContent='↗ 새 창에서 열기'; o.onclick=()=>openWin(a);
+  const r=document.createElement('button'); r.textContent='⟳ 새로고침'; r.onclick=()=>{if(frames[id]){frames[id].src=a.url;}};
+  const e=document.createElement('button'); e.textContent='✎ 주소 수정'; e.onclick=()=>editUrl(id);
+  bar.append(t,u,o); if(a.embed&&a.url) bar.append(r); bar.append(e);
+
+  if(a.embed && a.url){
+    if(!frames[id]){
+      const f=document.createElement('iframe');
+      f.src=a.url; f.allow='clipboard-read; clipboard-write; microphone; camera; fullscreen';
+      stage.appendChild(f); frames[id]=f;
+    }
+    frames[id].classList.remove('hide');
+  }else{
+    const l=document.createElement('div'); l.className='launch';
+    l.innerHTML='<div class="box"><div class="ico">'+a.emoji+'</div><h2>'+a.name+'</h2><p>'+
+      (a.url? a.kind+'은(는) 보안 정책상 다른 페이지 안에 넣을 수 없어 <b>별도 창</b>으로 엽니다.<br>한 번 연 창은 다시 눌러도 같은 창으로 돌아갑니다.'
+            : '이 앱의 주소가 아직 등록되지 않았습니다.<br>[주소 넣기]를 눌러 주소를 붙여넣어 주세요.')+
+      '</p><button class="go">'+(a.url?'열기 ↗':'주소 넣기')+'</button></div>';
+    l.querySelector('.go').onclick=()=>openWin(a);
+    stage.appendChild(l);
+  }
+}
+
+/* ───────── 주소 수정 ───────── */
+const dlg=document.getElementById('dlg');
+let editing=null;
+function editUrl(id){
+  editing=id; const a=app(id);
+  document.getElementById('dlgTitle').textContent=a.name+' — 주소 수정';
+  document.getElementById('dlgUrl').value=a.url||'';
+  document.getElementById('dlgEmbed').checked=!!a.embed;
+  dlg.showModal();
+}
+document.getElementById('dlgCancel').onclick=()=>dlg.close();
+document.getElementById('dlgOk').onclick=()=>{
+  const url=document.getElementById('dlgUrl').value.trim(), embed=document.getElementById('dlgEmbed').checked;
+  store.over[editing]={url,embed}; save(store);
+  if(frames[editing]){frames[editing].remove(); delete frames[editing];}
+  dlg.close(); renderTabs(); show(editing);
+};
+document.getElementById('resetAll').onclick=()=>{
+  if(!confirm('직접 수정한 주소를 모두 처음 값으로 되돌릴까요?'))return;
+  store.over={}; save(store);
+  Object.values(frames).forEach(f=>f.remove()); for(const k in frames) delete frames[k];
+  renderTabs(); show(current||'home');
+};
+
+/* 숫자키 1~9 로 탭 이동 (입력창에 쓰는 중이면 무시) */
+document.addEventListener('keydown',ev=>{
+  if(dlg.open||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
+  const n=parseInt(ev.key,10); if(n>=1&&n<=9&&APPS[n-1]) show(APPS[n-1].id);
+  if(ev.key==='0') show('home');
+});
+
+renderTabs();
+show(store.last && (store.last==='home'||APPS.some(a=>a.id===store.last)) ? store.last : 'home');
+</script>
+</body>
+</html>
